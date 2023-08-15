@@ -1,57 +1,46 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-# 
-#     http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
-$rootKey = 'hklm:\Software\Carbon\Test\Test-RemoveRegistryKeyValue'
-$valueName = 'RegValue'
+#Requires -Version 5.1
+Set-StrictMode -Version 'Latest'
 
-function Start-TestFixture
-{
-    & (Join-Path -Path $PSScriptRoot -ChildPath '..\Initialize-CarbonTest.ps1' -Resolve)
+BeforeAll {
+    Set-StrictMode -Version 'Latest'
+
+    & (Join-Path -Path $PSScriptRoot -ChildPath 'Initialize-Test.ps1' -Resolve)
+
+    $script:rootKey = 'hkcu:\Remove-CRegistryKeyValue'
+    $script:valueName = 'RegValue'
 }
 
-function Start-Test
-{
-    if( -not (Test-Path $rootKey -PathType Container) )
-    {
-        New-Item $rootKey -ItemType RegistryKey -Force
+
+Describe 'Remove-CRegistryKeyValue' {
+    BeforeEach {
+        if( -not (Test-Path $script:rootKey -PathType Container) )
+        {
+            New-Item $script:rootKey -ItemType RegistryKey -Force
+        }
     }
-    
-}
 
-function Stop-Test
-{
-    Remove-Item $rootKey -Recurse
-}
+    AfterEach {
+        Remove-Item $script:rootKey -Recurse
+    }
 
-function Test-ShouldRemoveExistingRegistryValue
-{
-    New-ItemProperty $rootKey -Name $valueName -Value 'it doesn''t matter' -PropertyType 'String'
-    Assert-True (Test-RegistryKeyValue -Path $rootKey -Name $valueName)
-    Remove-RegistryKeyValue -Path $rootKey -Name $valueName
-    Assert-False (Test-RegistryKeyValue -Path $rootKey -Name $valueName)
-}
+    It 'should remove existing registry value' {
+        New-ItemProperty $script:rootKey -Name $script:valueName -Value 'it doesn''t matter' -PropertyType 'String'
+        (Test-CRegistryKeyValue -Path $script:rootKey -Name $script:valueName) | Should -BeTrue
+        Remove-CRegistryKeyValue -Path $script:rootKey -Name $script:valueName
+        (Test-CRegistryKeyValue -Path $script:rootKey -Name $script:valueName) | Should -BeFalse
+    }
 
-function Test-ShouldRemoveNonExistentRegistryValue
-{
-    Assert-False (Test-RegistryKeyValue -Path $rootKey -Name 'I do not exist')
-    Remove-RegistryKeyValue -Path $rootKey -Name 'I do not exist'
-    Assert-False (Test-RegistryKeyValue -Path $rootKey -Name 'I do not exist')
-}
+    It 'should remove non existent registry value' {
+        (Test-CRegistryKeyValue -Path $script:rootKey -Name 'I do not exist') | Should -BeFalse
+        Remove-CRegistryKeyValue -Path $script:rootKey -Name 'I do not exist'
+        (Test-CRegistryKeyValue -Path $script:rootKey -Name 'I do not exist') | Should -BeFalse
+    }
 
-function Test-ShouldSupportWhatIf
-{
-    New-ItemProperty $rootKey -Name $valueName -Value 'it doesn''t matter' -PropertyType 'String'
-    Assert-True (Test-RegistryKeyValue -Path $rootKey -Name $valueName)
-    Remove-RegistryKeyValue -Path $rootKey -Name $valueName -WhatIf
-    Assert-True (Test-RegistryKeyValue -Path $rootKey -Name $valueName)
+    It 'should support what if' {
+        New-ItemProperty $script:rootKey -Name $script:valueName -Value 'it doesn''t matter' -PropertyType 'String'
+        (Test-CRegistryKeyValue -Path $script:rootKey -Name $script:valueName) | Should -BeTrue
+        Remove-CRegistryKeyValue -Path $script:rootKey -Name $script:valueName -WhatIf
+        (Test-CRegistryKeyValue -Path $script:rootKey -Name $script:valueName) | Should -BeTrue
+    }
 }
-

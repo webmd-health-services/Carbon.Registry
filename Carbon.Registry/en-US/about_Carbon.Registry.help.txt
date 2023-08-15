@@ -2,7 +2,14 @@ TOPIC
     about_Carbon.Registry
 
 SHORT DESCRIPTION
-    Carbon.Registry is a PowerShell module for...
+    Carbon.Registry is a PowerShell module for working with the Windows registry.
 
 LONG DESCRIPTION
-    The Carbon.Registry PowerShell module...
+    The Carbon.Registry PowerShell module has functions for installing registry keys and getting, removing, setting,
+    and testing registry key values:
+
+    * Get-CRegistryKeyValue
+    * Install-CRegistryKey
+    * Remove-CRegistryKeyValue
+    * Set-CRegistryKeyValue
+    * Test-CRegistryKeyValue

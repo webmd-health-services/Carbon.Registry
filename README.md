@@ -1,13 +1,15 @@
-# Overview
+# Carbon.Registry PowerShell Module
 
-The "Carbon.Registry" module...
+## Overview
 
-# System Requirements
+The "Carbon.Registry" PowerShell module contains functions that make it easier to work with the Windows registry.
+
+## System Requirements
 
 * Windows PowerShell 5.1 and .NET 4.6.1+
-* PowerShell Core 6+
+* PowerShell 6+
 
-# Installing
+## Installing
 
 To install globally:
 
@@ -23,4 +25,10 @@ Save-Module -Name 'Carbon.Registry' -Path '.'
 Import-Module -Name '.\Carbon.Registry'
 ```
 
-# Commands
+## Commands
+
+* `Get-CRegistryKeyValue`
+* `Install-CRegistryKey`
+* `Remove-CRegistryKeyValue`
+* `Set-CRegistryKeyValue`
+* `Test-CRegistryKeyValue`

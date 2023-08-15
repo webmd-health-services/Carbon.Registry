@@ -1,72 +1,59 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-# 
-#     http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
-$rootKey = 'hklm:\Software\Carbon\Test\Test-TestRegistryKeyValue'
+#Requires -Version 5.1
+Set-StrictMode -Version 'Latest'
 
-function Start-TestFixture
-{
-    & (Join-Path -Path $PSScriptRoot -ChildPath '..\Initialize-CarbonTest.ps1' -Resolve)
+BeforeAll {
+    Set-StrictMode -Version 'Latest'
+
+    & (Join-Path -Path $PSScriptRoot -ChildPath 'Initialize-Test.ps1' -Resolve)
+
+    $script:rootKey = 'hkcu:\Test-CRegistryKeyValue'
 }
 
-function Start-Test
-{
-    if( -not (Test-Path $rootKey -PathType Container) )
-    {
-        New-Item $rootKey -ItemType RegistryKey -Force
+Describe 'Test-CRegistryKeyValue' {
+    BeforeEach {
+        if( -not (Test-Path $script:rootKey -PathType Container) )
+        {
+            New-Item $script:rootKey -ItemType RegistryKey -Force
+        }
+
+        New-ItemProperty -Path $script:rootKey -Name 'Empty' -Value '' -PropertyType 'String'
+        New-ItemProperty -Path $script:rootKey -Name 'Null' -Value $null -PropertyType 'String'
+        New-ItemProperty -Path $script:rootKey -Name 'State' -Value 'Foobar''ed' -PropertyType 'String'
     }
-    
-    New-ItemProperty -Path $rootKey -Name 'Empty' -Value '' -PropertyType 'String'
-    New-ItemProperty -Path $rootKey -Name 'Null' -Value $null -PropertyType 'String'
-    New-ItemProperty -Path $rootKey -Name 'State' -Value 'Foobar''ed' -PropertyType 'String'
-}
 
-function Stop-Test
-{
-    Remove-Item $rootKey -Recurse
-}
+    AfterEach {
+        Remove-Item $script:rootKey -Recurse
+    }
 
-function Test-ShouldDetectValueWithEmptyValue
-{
-    Assert-True (Test-RegistryKeyValue -Path $rootKey -Name 'Empty')
-}
+    It 'should detect value with empty value' {
+        (Test-CRegistryKeyValue -Path $script:rootKey -Name 'Empty') | Should -BeTrue
+    }
 
-function Test-ShouldDetectValueWithNullValue
-{
-    Assert-True (Test-RegistryKeyValue -Path $rootKey -Name 'Null')
-}
+    It 'should detect value with null value' {
+        (Test-CRegistryKeyValue -Path $script:rootKey -Name 'Null') | Should -BeTrue
+    }
 
-function Test-ShouldDetectValueWithAValue
-{
-    Assert-True (Test-RegistryKeyValue -Path $rootKey -Name 'State')
-}
+    It 'should detect value with a value' {
+        (Test-CRegistryKeyValue -Path $script:rootKey -Name 'State') | Should -BeTrue
+    }
 
-function Test-ShouldDetectNoValueInMissingKey
-{
-    Assert-False (Test-RegistryKeyValue -Path (Join-Path $rootKey fjdsklfjsadf) -Name 'IDoNotExistEither')
-}
+    It 'should detect no value in missing key' {
+        (Test-CRegistryKeyValue -Path (Join-Path $script:rootKey fjdsklfjsadf) -Name 'IDoNotExistEither') | Should -BeFalse
+    }
 
-function Test-ShouldNotDetectMissingValue
-{
-    Set-StrictMode -Version Latest
-    $error.Clear()
-    Assert-False (Test-RegistryKeyValue -Path $rootKey -Name 'BlahBlahBlah' -ErrorAction SilentlyContinue)
-    Assert-Equal 0 $error.Count
-}
+    It 'should not detect missing value' {
+        Set-StrictMode -Version Latest
+        $error.Clear()
+        (Test-CRegistryKeyValue -Path $script:rootKey -Name 'BlahBlahBlah' -ErrorAction SilentlyContinue) | Should -BeFalse
+        $error.Count | Should -Be 0
+    }
 
-function Test-ShouldHandleKeyWithNoValues
-{
-    Remove-ItemProperty -Path $rootKey -Name *
-    $error.Clear()
-    Assert-False (Test-RegistryKeyValue -Path $rootKey -Name 'Empty')
-    Assert-Equal 0 $error.Count
-}
+    It 'should handle key with no values' {
+        Remove-ItemProperty -Path $script:rootKey -Name *
+        $error.Clear()
+        (Test-CRegistryKeyValue -Path $script:rootKey -Name 'Empty') | Should -BeFalse
+        $error.Count | Should -Be 0
+    }
 
+}
