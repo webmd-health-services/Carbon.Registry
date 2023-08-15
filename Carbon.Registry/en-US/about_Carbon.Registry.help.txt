@@ -1,0 +1,8 @@
+TOPIC
+    about_Carbon.Registry
+
+SHORT DESCRIPTION
+    Carbon.Registry is a PowerShell module for...
+
+LONG DESCRIPTION
+    The Carbon.Registry PowerShell module...

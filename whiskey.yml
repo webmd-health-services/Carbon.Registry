@@ -1,0 +1,84 @@
+
+Build:
+- PowerShell:
+    ExceptDuring: Clean
+    ScriptBlock: prism install | Format-Table -Auto
+
+- Version:
+    Path: Carbon.Registry\Carbon.Registry.psd1
+    Prerelease:
+    - main: ""
+    - "*": rc1
+
+# Update the AppVeyor build/version number.
+- Exec:
+      OnlyBy: BuildServer
+      Path: appveyor
+      Argument: [ UpdateBuild, -Version, "$(WHISKEY_SEMVER2)+$(WHISKEY_BUILD_NUMBER)" ]
+
+# Dot-sourcing files is expensive. Move all functions into .psm1 file to improve import speed. Do this before testing
+# to ensure the module still works.
+- MergeFile:
+    OnlyBy: BuildServer
+    # Builds run twice on some serves. Only run this step if the module hasn't been merged yet.
+    IfExists: Carbon.Registry\Functions\*.ps1
+    Path:
+    - Carbon.Registry\Functions\*.ps1
+    DestinationPath: Carbon.Registry\Carbon.Registry.psm1
+    DeleteSourceFiles: true
+    TextSeparator: "$(NewLine)$(NewLine)"
+
+- PowerShell:
+    ExceptDuring: Clean
+    Path: init.ps1
+
+- PowerShell:
+    OnlyDuring: Clean
+    Path: reset.ps1
+
+- CopyFile:
+    Path:
+    - CHANGELOG.md
+    - README.md
+    - LICENSE.txt
+    - NOTICE.txt
+    DestinationDirectory: Carbon.Registry
+
+- Zip:
+    ArchivePath: .output\Carbon.Registry-$(WHISKEY_SEMVER2).zip
+    Path:
+    - Carbon.Registry
+    Exclude:
+    - "*.pdb"
+    - "*.orig"
+
+- Exec:
+    OnlyBy: BuildServer
+    Path: appveyor
+    Argument: [ 'PushArtifact', '.output/Carbon.Registry-$(WHISKEY_SEMVER2).zip', '-DeploymentName', 'GitHub' ]
+
+- Pester:
+    Configuration:
+        Run:
+            Path: Tests\*.Tests.ps1
+            Exit: true
+            Throw: true
+        TestResult:
+            Enabled: true
+            OutputPath: .output\pester.xml
+            TestSuiteName: Carbon.Registry
+        Output:
+            Verbosity: Detailed
+
+- PublishPowerShellModule:
+    Path: Carbon.Registry
+
+- Exec:
+    OnlyBy: BuildServer
+    Path: appveyor
+    Argument: [
+        'PushArtifact',
+        '.output/Carbon.Registry.$(WHISKEY_SEMVER2_NO_BUILD_METADATA).nupkg',
+        '-DeploymentName',
+        'PowerShellGallery'
+    ]
