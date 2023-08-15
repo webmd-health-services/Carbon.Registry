@@ -100,21 +100,21 @@ function Set-CRegistryKeyValue
     param(
         # The path to the registry key where the value should be set.  Will be created if it doesn't exist.
         [Parameter(Mandatory)]
-        [string] $Path,
+        [String] $Path,
 
         # The name of the value being set.
         [Parameter(Mandatory)]
-        [string] $Name,
+        [String] $Name,
 
         # The value's data.  Creates a value for holding string data (i.e. `REG_SZ`). If `$null`, the value will be saved as an empty string.
         [Parameter(Mandatory, ParameterSetName='String')]
         [AllowEmptyString()]
         [AllowNull()]
-        [string] $String,
+        [String] $String,
 
         # The string should be expanded when retrieved.  Creates a value for holding expanded string data (i.e. `REG_EXPAND_SZ`).
         [Parameter(ParameterSetName='String')]
-        [Switch] $Expand,
+        [switch] $Expand,
 
         # The value's data.  Creates a value for holding binary data (i.e. `REG_BINARY`).
         [Parameter(Mandatory, ParameterSetName='Binary')]
@@ -126,7 +126,7 @@ function Set-CRegistryKeyValue
 
         # The value's data as an unsigned integer (i.e. `UInt32`).  Creates a value for holding a 32-bit integer (i.e. `REG_DWORD`).
         [Parameter(Mandatory, ParameterSetName='DWordAsUnsignedInt')]
-        [uint32] $UDWord,
+        [UInt32] $UDWord,
 
         # The value's data.  Creates a value for holding a 64-bit integer (i.e. `REG_QWORD`).
         [Parameter(Mandatory, ParameterSetName='QWord')]
@@ -134,14 +134,15 @@ function Set-CRegistryKeyValue
 
         # The value's data as an unsigned long (i.e. `UInt64`).  Creates a value for holding a 64-bit integer (i.e. `REG_QWORD`).
         [Parameter(Mandatory, ParameterSetName='QWordAsUnsignedInt')]
-        [uint64] $UQWord,
+        [UInt64] $UQWord,
 
         # The value's data.  Creates a value for holding an array of strings (i.e. `REG_MULTI_SZ`).
         [Parameter(Mandatory, ParameterSetName='MultiString')]
-        [string[]] $Strings,
+        [AllowEmptyCollection()]
+        [String[]] $Strings,
 
         # Removes and re-creates the value.  Useful for changing a value's type.
-        [Switch] $Force
+        [switch] $Force
     )
 
     Set-StrictMode -Version 'Latest'

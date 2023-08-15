@@ -189,4 +189,12 @@ Describe 'Set-CRegistryKeyValue when the key doesn''t exist' {
         $uint32 = [BitConverter]::ToUInt32( $bytes, 0 )
         $setValue | Should -Be $uint32
     }
+
+    It 'clears multiline string' {
+        $name = 'canclearmultilinestring'
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('one', 'two', 'three')
+        Get-CRegistryKeyValue -Path $script:rootKey -Name $name | Should -Be @('one', 'two', 'three')
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @()
+        Get-CRegistryKeyValue -Path $script:rootKey -Name $name | Should -Be @()
+    }
 }

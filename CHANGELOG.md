@@ -22,6 +22,10 @@ Remove usages of the `Quiet` switch from usages of `Set-CRegistryKeyValue`. That
 * Replaced verbose-level messages with information-level messages in `Install-CRegistryKey`, `Remove-CRegistryKeyValue`,
 and `Set-CRegistryKeyValue` when they make changes.
 
+### Fixed
+
+* `Set-CRegistryKeyValue` fails to set multiline string values to an empty list.
+
 ### Removed
 
 * `Get-RegistryKeyValue` (use `Get-CRegistryKeyValue` instead).
