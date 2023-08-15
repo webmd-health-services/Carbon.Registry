@@ -107,7 +107,36 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @( 'Desktop', 'Core' )
+            Tags = @(
+                'Desktop',
+                'Core',
+                'dword',
+                'hive',
+                'HKCU',
+                'HKEY_CLASSES_ROOT',
+                'HKEY_CURRENT_CONFIG',
+                'HKEY_CURRENT_USER',
+                'HKEY_LOCAL_MACHINE',
+                'HKEY_USERS',
+                'HKLM',
+                'key',
+                'multistring'
+                'new-itemproperty',
+                'qword',
+                'REG_BINARY',
+                'REG_DWORD',
+                'REG_EXPAND_SZ',
+                'REG_MULTI_SZ',
+                'REG_QWORD',
+                'REG_SZ',
+                'reg',
+                'regedit',
+                'registry',
+                'remove-itemproperty',
+                'set-itemproperty',
+                'udword',
+                'uqword'
+            )
 
             # A URL to the license for this module.
             LicenseUri = 'http://www.apache.org/licenses/LICENSE-2.0'

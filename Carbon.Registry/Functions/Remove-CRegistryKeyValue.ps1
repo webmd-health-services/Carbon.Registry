@@ -40,4 +40,3 @@ function Remove-CRegistryKeyValue
     Write-Information "   ${Path}  - ${Name}"
     Remove-ItemProperty -Path $Path -Name $Name
 }
-

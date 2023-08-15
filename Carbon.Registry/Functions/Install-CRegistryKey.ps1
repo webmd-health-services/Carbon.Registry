@@ -29,5 +29,3 @@ function Install-CRegistryKey
         New-Item -Path $Path -ItemType RegistryKey -Force | Out-String | Write-Verbose
     }
 }
-
-

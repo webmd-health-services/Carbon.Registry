@@ -197,4 +197,3 @@ function Set-CRegistryKeyValue
         $null = New-ItemProperty -Path $Path -Name $Name -Value $value -PropertyType $type
     }
 }
-

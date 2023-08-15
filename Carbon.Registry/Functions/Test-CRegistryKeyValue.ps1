@@ -47,4 +47,3 @@ function Test-CRegistryKeyValue
 
     return $false
 }
-
