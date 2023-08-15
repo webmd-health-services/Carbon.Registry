@@ -185,15 +185,15 @@ function Set-CRegistryKeyValue
     if (Test-CRegistryKeyValue -Path $Path -Name $Name)
     {
         $currentValue = Get-CRegistryKeyValue -Path $Path -Name $Name
-        if( $currentValue -ne $value )
+        if ($currentValue -ne $value)
         {
-            Write-Verbose -Message ("[{0}@{1}] {2} -> {3}'" -f $Path,$Name,$currentValue,$value)
+            Write-Information -Message "   ${Path}    ${Name}  ${currentValue} -> ${value}"
             Set-ItemProperty -Path $Path -Name $Name -Value $value
         }
     }
     else
     {
-        Write-Verbose -Message ("[{0}@{1}]  -> {2}'" -f $Path,$Name,$value)
+        Write-Information -Message "   ${Path}  + ${Name}  ${value}"
         $null = New-ItemProperty -Path $Path -Name $Name -Value $value -PropertyType $type
     }
 }

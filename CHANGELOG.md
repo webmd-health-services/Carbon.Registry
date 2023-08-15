@@ -17,6 +17,11 @@ All functions now require using the `C` prefix.
 
 Remove usages of the `Quiet` switch from usages of `Set-CRegistryKeyValue`. That switch was removed.
 
+### Added
+
+* Replaced verbose-level messages with information-level messages in `Install-CRegistryKey`, `Remove-CRegistryKeyValue`,
+and `Set-CRegistryKeyValue` when they make changes.
+
 ### Removed
 
 * `Get-RegistryKeyValue` (use `Get-CRegistryKeyValue` instead).

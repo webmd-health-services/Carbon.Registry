@@ -25,6 +25,7 @@ function Install-CRegistryKey
 
     if (-not (Test-Path -Path $Path -PathType Container))
     {
+        Write-Information " + ${Path}"
         New-Item -Path $Path -ItemType RegistryKey -Force | Out-String | Write-Verbose
     }
 }
