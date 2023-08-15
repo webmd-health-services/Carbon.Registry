@@ -196,6 +196,9 @@ Describe 'Set-CRegistryKeyValue when the key doesn''t exist' {
         Get-CRegistryKeyValue -Path $script:rootKey -Name $name | Should -Be @('one', 'two', 'three')
         Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @()
         Get-CRegistryKeyValue -Path $script:rootKey -Name $name | Should -Be @()
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('one', 'two', 'three')
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings $null
+        Get-CRegistryKeyValue -Path $script:rootKey -Name $name | Should -Be @()
     }
 
     It 'does not save when multiline string value does not change' {

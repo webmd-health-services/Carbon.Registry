@@ -106,13 +106,15 @@ function Set-CRegistryKeyValue
         [Parameter(Mandatory)]
         [String] $Name,
 
-        # The value's data.  Creates a value for holding string data (i.e. `REG_SZ`). If `$null`, the value will be saved as an empty string.
+        # The value's data.  Creates a value for holding string data (i.e. `REG_SZ`). If `$null`, the value will be
+        # saved as an empty string.
         [Parameter(Mandatory, ParameterSetName='String')]
         [AllowEmptyString()]
         [AllowNull()]
         [String] $String,
 
-        # The string should be expanded when retrieved.  Creates a value for holding expanded string data (i.e. `REG_EXPAND_SZ`).
+        # The string should be expanded when retrieved.  Creates a value for holding expanded string data (i.e.
+        # `REG_EXPAND_SZ`).
         [Parameter(ParameterSetName='String')]
         [switch] $Expand,
 
@@ -124,7 +126,8 @@ function Set-CRegistryKeyValue
         [Parameter(Mandatory, ParameterSetName='DWord')]
         [int] $DWord,
 
-        # The value's data as an unsigned integer (i.e. `UInt32`).  Creates a value for holding a 32-bit integer (i.e. `REG_DWORD`).
+        # The value's data as an unsigned integer (i.e. `UInt32`).  Creates a value for holding a 32-bit integer (i.e.
+        # `REG_DWORD`).
         [Parameter(Mandatory, ParameterSetName='DWordAsUnsignedInt')]
         [UInt32] $UDWord,
 
@@ -132,13 +135,16 @@ function Set-CRegistryKeyValue
         [Parameter(Mandatory, ParameterSetName='QWord')]
         [long] $QWord,
 
-        # The value's data as an unsigned long (i.e. `UInt64`).  Creates a value for holding a 64-bit integer (i.e. `REG_QWORD`).
+        # The value's data as an unsigned long (i.e. `UInt64`).  Creates a value for holding a 64-bit integer (i.e.
+        # `REG_QWORD`).
         [Parameter(Mandatory, ParameterSetName='QWordAsUnsignedInt')]
         [UInt64] $UQWord,
 
-        # The value's data.  Creates a value for holding an array of strings (i.e. `REG_MULTI_SZ`).
+        # The value's data.  Creates a value for holding an array of strings (i.e. `REG_MULTI_SZ`). Pass an empty array
+        # or `$null` to set the value to an empty list.
         [Parameter(Mandatory, ParameterSetName='MultiString')]
         [AllowEmptyCollection()]
+        [AllowNull()]
         [String[]] $Strings,
 
         # Removes and re-creates the value.  Useful for changing a value's type.
@@ -173,7 +179,14 @@ function Set-CRegistryKeyValue
             $value = $UQWord
             $type = 'QWord'
         }
-        'MultiString' { $value = $Strings }
+        'MultiString'
+        {
+            if ($null -eq $Strings)
+            {
+                $Strings = [String[]]::New(0)
+            }
+            $value = $Strings
+        }
     }
 
     Install-CRegistryKey -Path $Path
