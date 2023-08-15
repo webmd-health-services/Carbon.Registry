@@ -17,14 +17,15 @@ All functions now require using the `C` prefix.
 
 Remove usages of the `Quiet` switch from usages of `Set-CRegistryKeyValue`. That switch was removed.
 
-### Added
+### Changed
 
 * Replaced verbose-level messages with information-level messages in `Install-CRegistryKey`, `Remove-CRegistryKeyValue`,
-and `Set-CRegistryKeyValue` when they make changes.
+and `Set-CRegistryKeyValue` when saving changes.
 
 ### Fixed
 
 * `Set-CRegistryKeyValue` fails to set multiline string values to an empty list.
+* `Set-CRegistryKeyValue` sets the value of a multiline string even if the value hasn't changed.
 
 ### Removed
 

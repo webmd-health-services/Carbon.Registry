@@ -185,16 +185,98 @@ function Set-CRegistryKeyValue
 
     if (Test-CRegistryKeyValue -Path $Path -Name $Name)
     {
+        $updateValue = $false
         $currentValue = Get-CRegistryKeyValue -Path $Path -Name $Name
-        if ($currentValue -ne $value)
+        if ($PSCmdlet.ParameterSetName -eq 'MultiString')
         {
-            Write-Information -Message "   ${Path}    ${Name}  ${currentValue} -> ${value}"
+            [String[]] $currentValues = $currentValue
+            if ($null -eq $currentValues)
+            {
+                $currentValues = @()
+            }
+
+            $firstLineWritten = $false
+            $msgPrefix = "   ${Path}    ${Name}"
+            for ($idx = 0 ; $idx -lt ([Math]::Max($currentValues.Length, $value.Length)) ; ++$idx)
+            {
+                $fromValue = $null
+                $noFromValue = $true
+                $toValue = $null
+                $noToValue = $true
+
+                $changeMsg = ''
+                if ($idx -lt $currentValues.Length)
+                {
+                    $fromValue = $currentValues[$idx]
+                    $noFromValue = $false
+                }
+
+                if ($idx -lt $value.Length)
+                {
+                    $toValue = $value[$idx]
+                    $noToValue = $false
+                }
+
+                if ($fromValue -eq $toValue)
+                {
+                    continue
+                }
+
+                $changeMsg = "  ${fromValue} -> ${toValue}"
+                if ($noFromValue)
+                {
+                    $changeMsg = "+ ${toValue}"
+                }
+                elseif ($noToValue)
+                {
+                    $changeMsg = "- ${fromValue}"
+                }
+
+                $updateValue = $true
+                $msg = "${msgPrefix}[${idx}]  ${changeMsg}"
+                Write-Information $msg
+
+                if (-not $firstLineWritten)
+                {
+                    $msgPrefix = ' ' * $msgPrefix.Length
+                    $firstLineWritten = $true
+                }
+            }
+        }
+        else
+        {
+            $updateValue = ($currentValue -ne $value)
+            if ($updateValue)
+            {
+                Write-Information -Message "   ${Path}    ${Name}  ${currentValue} -> ${value}"
+            }
+        }
+
+        if ($updateValue)
+        {
             Set-ItemProperty -Path $Path -Name $Name -Value $value
         }
     }
     else
     {
-        Write-Information -Message "   ${Path}  + ${Name}  ${value}"
+        if ($PSCmdlet.ParameterSetName -eq 'MultiString')
+        {
+            $msgPrefix = "   ${Path}  + ${Name}"
+            $firstLineWritten = $false
+            for ($idx = 0 ; $idx -lt $value.Length ; ++$idx)
+            {
+                Write-Information "${msgPrefix}[${idx}]  $($value[$idx])"
+                if (-not $firstLineWritten)
+                {
+                    $firstLineWritten = $true
+                    $msgPrefix = ' ' * $msgPrefix.Length
+                }
+            }
+        }
+        else
+        {
+            Write-Information -Message "   ${Path}  + ${Name}  ${value}"
+        }
         $null = New-ItemProperty -Path $Path -Name $Name -Value $value -PropertyType $type
     }
 }

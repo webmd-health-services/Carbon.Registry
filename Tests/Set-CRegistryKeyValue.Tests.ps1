@@ -197,4 +197,34 @@ Describe 'Set-CRegistryKeyValue when the key doesn''t exist' {
         Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @()
         Get-CRegistryKeyValue -Path $script:rootKey -Name $name | Should -Be @()
     }
+
+    It 'does not save when multiline string value does not change' {
+        $name = 'canclearmultilinestring'
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('one', 'two', 'three')
+        Get-CRegistryKeyValue -Path $script:rootKey -Name $name | Should -Be @('one', 'two', 'three')
+        Mock -CommandName 'Set-ItemProperty' -ModuleName 'Carbon.Registry'
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('one', 'two', 'three')
+        Should -Not -Invoke 'Set-ItemProperty' -ModuleName 'Carbon.Registry'
+    }
+
+    It 'writes correct information messages when updating multiline string' {
+        $name = 'changemultilinestring'
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('a', 'b', 'c')
+        Write-Information "Changing values at index 0 and 2"
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('c', 'b', 'a')
+        Write-Information "Removing value at index 2"
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('c', 'b')
+        Write-Information "Adding value at index 2"
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('c', 'b', 'a')
+        Write-Information "Changing item at index 1, removing item at index 2."
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('c', 'a')
+        Write-Information "Changing item at index 1, adding item at index 2"
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('c', 'b', 'a')
+        Write-Information "Changing item at index 0 and 1, removing item at index 2."
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('b', 'a')
+        Write-Information "changing item at index 0, removing item at index 1"
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('c')
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('c', 'b')
+        Set-CRegistryKeyValue -Path $script:rootKey -Name $name -Strings @('c', 'b', 'a', 'd')
+    }
 }
