@@ -141,20 +141,11 @@ function Set-CRegistryKeyValue
         [string[]] $Strings,
 
         # Removes and re-creates the value.  Useful for changing a value's type.
-        [Switch] $Force,
-
-        # OBSOLETE. Will be removed in a future version of Carbon.
-        [Parameter(DontShow=$true)]
-        [Switch] $Quiet
+        [Switch] $Force
     )
 
     Set-StrictMode -Version 'Latest'
     Use-CallerPreference -Cmdlet $PSCmdlet -Session $ExecutionContext.SessionState
-
-    if( $PSBoundParameters.ContainsKey('Quiet') )
-    {
-        Write-CWarningOnce ('Set-CRegistryKeyValue''s -Quiet switch is obsolete and will be removed in a future version of Carbon. Please remove usages.')
-    }
 
     $value = $null
     $type = $pscmdlet.ParameterSetName

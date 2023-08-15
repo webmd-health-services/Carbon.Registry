@@ -7,13 +7,15 @@ Migrated Carbon registry functions.
 
 ### Upgrade Instructions
 
-Aĺl functions now require using the `C` prefix.
+All functions now require using the `C` prefix.
 
 * Replace usages of `Get-RegistryKeyValue` with `Get-CRegistryKeyValue`.
 * Replace usages of `Remove-RegistryKeyValue` with `Remove-CRegistryKeyValue`.
 * Replace usages of `Set-RegistryKeyValue` with `Set-CRegistryKeyValue`.
 * Replace usages of `Test-RegistryKeyValue` with `Test-CRegistryKeyValue`.
 * Replace usages of `Install-RegistryKey` with `Install-CRegistryKey`.
+
+Remove usages of the `Quiet` switch from usages of `Set-CRegistryKeyValue`. That switch was removed.
 
 ### Removed
 
@@ -22,3 +24,4 @@ Aĺl functions now require using the `C` prefix.
 * `Set-RegistryKeyValue` (use `Set-CRegistryKeyValue` instead).
 * `Test-RegistryKeyValue` (use `Test-CRegistryKeyValue` instead).
 * `Install-RegistryKey` (use `Install-CRegistryKey` instead).
+* Parameter `Quiet` from `Set-CRegistryKeyValue`.
