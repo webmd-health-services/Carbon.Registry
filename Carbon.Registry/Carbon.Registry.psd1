@@ -18,7 +18,7 @@
     RootModule = 'Carbon.Registry.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.0.0'
+    ModuleVersion = '1.0.0'
 
     # ID used to uniquely identify this module
     GUID = '9772fb52-add8-47bf-83dc-0294ca8d9c64'
@@ -36,7 +36,7 @@
     Copyright = '(c) WebMD Health Services.'
 
     # Description of the functionality provided by this module
-    Description = ''
+    Description = 'Functions for working with the Windows registry to get, remove, set, and test registry key values and install registry keys.'
 
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '5.1'
@@ -76,6 +76,11 @@
 
     # Functions to export from this module. Only list public function here.
     FunctionsToExport = @(
+        'Get-CRegistryKeyValue',
+        'Install-CRegistryKey',
+        'Remove-CRegistryKeyValue',
+        'Set-CRegistryKeyValue',
+        'Test-CRegistryKeyValue'
     )
 
     # Cmdlets to export from this module. By default, you get a script module, so there are no cmdlets.
@@ -102,7 +107,36 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @( 'Desktop', 'Core' )
+            Tags = @(
+                'Desktop',
+                'Core',
+                'dword',
+                'hive',
+                'HKCU',
+                'HKEY_CLASSES_ROOT',
+                'HKEY_CURRENT_CONFIG',
+                'HKEY_CURRENT_USER',
+                'HKEY_LOCAL_MACHINE',
+                'HKEY_USERS',
+                'HKLM',
+                'key',
+                'multistring'
+                'new-itemproperty',
+                'qword',
+                'REG_BINARY',
+                'REG_DWORD',
+                'REG_EXPAND_SZ',
+                'REG_MULTI_SZ',
+                'REG_QWORD',
+                'REG_SZ',
+                'reg',
+                'regedit',
+                'registry',
+                'remove-itemproperty',
+                'set-itemproperty',
+                'udword',
+                'uqword'
+            )
 
             # A URL to the license for this module.
             LicenseUri = 'http://www.apache.org/licenses/LICENSE-2.0'
