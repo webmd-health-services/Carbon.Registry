@@ -3,6 +3,8 @@
 
 ## 1.0.0
 
+> Released 16 Aug 2023
+
 Migrated Carbon registry functions.
 
 ### Upgrade Instructions
