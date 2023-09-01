@@ -76,10 +76,14 @@
 
     # Functions to export from this module. Only list public function here.
     FunctionsToExport = @(
+        'Get-CRegistryKeyPermission',
         'Get-CRegistryKeyValue',
+        'Grant-CRegistryKeyPermission',
         'Install-CRegistryKey',
         'Remove-CRegistryKeyValue',
+        'Revoke-CRegistryKeyPermission',
         'Set-CRegistryKeyValue',
+        'Test-CRegistryKeyPermission',
         'Test-CRegistryKeyValue'
     )
 
