@@ -1,6 +1,13 @@
 
 # Carbon.Registry Changelog
 
+## 1.1.0
+
+> Released 26 Jan 2024
+
+Added `Uninstall-CRegistryKey` function for deleting a registry key without errors if it doesn't exist.
+
+
 ## 1.0.0
 
 > Released 16 Aug 2023
