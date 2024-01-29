@@ -58,3 +58,5 @@ finally
     $Global:WhatIfPreference = $originalWhatIfPref
 }
 
+Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\PSModules\Carbon.Accounts' -Resolve) `
+              -Function @('Resolve-CIdentityName')

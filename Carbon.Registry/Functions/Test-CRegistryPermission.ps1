@@ -1,5 +1,5 @@
 
-function Test-CPermission
+function Test-CRegistryPermission
 {
     <#
     .SYNOPSIS
@@ -80,144 +80,50 @@ function Test-CPermission
     #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
-        [string]
         # The path on which the permissions should be checked.  Can be a file system or registry path.
-        $Path,
+        [Parameter(Mandatory)]
+        [String] $Path,
 
-        [Parameter(Mandatory=$true)]
-        [string]
         # The user or group whose permissions to check.
-        $Identity,
+        [Parameter(Mandatory)]
+        [String] $Identity,
 
-        [Parameter(Mandatory=$true)]
-        [string[]]
-        # The permission to test for: e.g. FullControl, Read, etc.  For file system items, use values from [System.Security.AccessControl.FileSystemRights](http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.filesystemrights.aspx).  For registry items, use values from [System.Security.AccessControl.RegistryRights](http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.registryrights.aspx).
-        $Permission,
+        # The permission to test for: e.g. FullControl, Read, etc.  For file system items, use values from
+        # [System.Security.AccessControl.FileSystemRights](http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.filesystemrights.aspx).
+        # For registry items, use values from
+        # [System.Security.AccessControl.RegistryRights](http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.registryrights.aspx).
+        [Parameter(Mandatory)]
+        [String[]] $Permission,
 
-        [Carbon.Security.ContainerInheritanceFlags]
-        # The container and inheritance flags to check. Ignored if `Path` is a file. These are ignored if not supplied. See `Grant-CPermission` for detailed explanation of this parameter. This controls the inheritance and propagation flags.  Default is full inheritance, e.g. `ContainersAndSubContainersAndLeaves`. This parameter is ignored if `Path` is to a leaf item.
-        $ApplyTo,
+        # The container and inheritance flags to check. Ignored if `Path` is a file. These are ignored if not supplied.
+        # See `Grant-CPermission` for detailed explanation of this parameter. This controls the inheritance and
+        # propagation flags.  Default is full inheritance, e.g. `ContainersAndSubContainersAndLeaves`. This parameter is
+        # ignored if `Path` is to a leaf item.
+        [ValidateSet('KeyOnly', 'KeyAndSubkeys', 'SubkeysOnly')]
+        [String] $ApplyTo,
 
-        [Switch]
+        # Only apply the permissions to keys in the key, i.e. child keys only.
+        [switch] $OnlyApplyToChildKeys,
+
         # Include inherited permissions in the check.
-        $Inherited,
+        [switch] $Inherited,
 
-        [Switch]
-        # Check for the exact permissions, inheritance flags, and propagation flags, i.e. make sure the identity has *only* the permissions you specify.
-        $Exact,
-
-        [switch] $NoWarn
+        # Check for the exact permissions, inheritance flags, and propagation flags, i.e. make sure the identity has
+        # *only* the permissions you specify.
+        [switch] $Strict
     )
 
     Set-StrictMode -Version 'Latest'
     Use-CallerPreference -Cmdlet $PSCmdlet -Session $ExecutionContext.SessionState
 
-    Write-CRefactoredCommandWarning -CommandName 'Test-CPermission' -ModuleName 'Carbon.Permissions' -NoWarn
+    $PSBoundParameters.Remove('OnlyApplyToChildKeys') | Out-Null
 
-    $originalPath = $Path
-    $Path = Resolve-Path -Path $Path -ErrorAction 'SilentlyContinue'
-    if( -not $Path -or -not (Test-Path -Path $Path) )
+    if ($ApplyTo)
     {
-        if( -not $Path )
-        {
-            $Path = $originalPath
-        }
-        Write-Error ('Unable to test {0}''s {1} permissions: path ''{2}'' not found.' -f $Identity,($Permission -join ','),$Path)
-        return
+        $PSBoundParameters.Remove('ApplyTo') | Out-Null
+
+        Add-FlagsArgument -Argument $PSBoundParameters -ApplyTo $ApplyTo -OnlyApplyToChildKeys:$OnlyApplyToChildKeys
     }
 
-    $providerName = Get-CPathProvider -Path $Path -NoWarn | Select-Object -ExpandProperty 'Name'
-    if( $providerName -eq 'Certificate' )
-    {
-        $providerName = 'CryptoKey'
-        # CryptoKey does not exist in .NET standard/core so we will have to use FileSystem instead
-        if( -not (Test-CCryptoKeyAvailable) )
-        {
-            $providerName = 'FileSystem'
-        }
-    }
-
-    if( ($providerName -eq 'FileSystem' -or $providerName -eq 'CryptoKey') -and $Exact )
-    {
-        # Synchronize is always on and can't be turned off.
-        $Permission += 'Synchronize'
-    }
-    $rights = $Permission | ConvertTo-ProviderAccessControlRights -ProviderName $providerName
-    if( -not $rights )
-    {
-        Write-Error ('Unable to test {0}''s {1} permissions on {2}: received an unknown permission.' -f $Identity,$Permission,$Path)
-        return
-    }
-
-    $account = Resolve-CIdentity -Name $Identity -NoWarn
-    if( -not $account)
-    {
-        return
-    }
-
-    $rightsPropertyName = '{0}Rights' -f $providerName
-    $inheritanceFlags = [Security.AccessControl.InheritanceFlags]::None
-    $propagationFlags = [Security.AccessControl.PropagationFlags]::None
-    $testApplyTo = $false
-    if( $PSBoundParameters.ContainsKey('ApplyTo') )
-    {
-        if( (Test-Path -Path $Path -PathType Leaf ) )
-        {
-            Write-Warning "Can't test inheritance/propagation rules on a leaf. Please omit `ApplyTo` parameter when `Path` is a leaf."
-        }
-        else
-        {
-            $testApplyTo = $true
-            $inheritanceFlags = ConvertTo-CInheritanceFlag -ContainerInheritanceFlag $ApplyTo -NoWarn
-            $propagationFlags = ConvertTo-CPropagationFlag -ContainerInheritanceFlag $ApplyTo -NoWarn
-        }
-    }
-
-    if( $providerName -eq 'CryptoKey' )
-    {
-        # If the certificate doesn't have a private key, return $true.
-        if( (Get-Item -Path $Path | Where-Object { -not $_.HasPrivateKey } ) )
-        {
-            return $true
-        }
-    }
-
-    $acl = Get-CPermission -Path $Path -Identity $Identity -Inherited:$Inherited -NoWarn |
-                Where-Object { $_.AccessControlType -eq 'Allow' } |
-                Where-Object { $_.IsInherited -eq $Inherited } |
-                Where-Object {
-                    if( $Exact )
-                    {
-                        return ($_.$rightsPropertyName -eq $rights)
-                    }
-                    else
-                    {
-                        return ($_.$rightsPropertyName -band $rights) -eq $rights
-                    }
-                } |
-                Where-Object {
-                    if( -not $testApplyTo )
-                    {
-                        return $true
-                    }
-
-                    if( $Exact )
-                    {
-                        return ($_.InheritanceFlags -eq $inheritanceFlags) -and ($_.PropagationFlags -eq $propagationFlags)
-                    }
-                    else
-                    {
-                        return (($_.InheritanceFlags -band $inheritanceFlags) -eq $inheritanceFlags) -and `
-                               (($_.PropagationFlags -and $propagationFlags) -eq $propagationFlags)
-                    }
-                }
-    if( $acl )
-    {
-        return $true
-    }
-    else
-    {
-        return $false
-    }
+    Test-CPermission @PSBoundParameters
 }

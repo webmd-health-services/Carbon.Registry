@@ -1,0 +1,9 @@
+{
+  "PSModules": [
+    {
+      "name": "Carbon.Permissions",
+      "version": "1.0.0-rc4",
+      "repositorySourceLocation": "https://www.powershellgallery.com/api/v2"
+    }
+  ]
+}

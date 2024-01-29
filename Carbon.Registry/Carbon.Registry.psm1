@@ -1,3 +1,7 @@
+
+using namespace System.Collections
+using namespace System.Security.AccessControl
+
 # Copyright WebMD Health Services
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +20,14 @@
 Set-StrictMode -Version 'Latest'
 
 # Functions should use $moduleRoot as the relative root from which to find
-# things. A published module has its function appended to this file, while a 
+# things. A published module has its function appended to this file, while a
 # module in development has its functions in the Functions directory.
 $moduleRoot = $PSScriptRoot
 
-# Store each of your module's functions in its own file in the Functions 
-# directory. On the build server, your module's functions will be appended to 
+Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath 'Modules\Carbon.Permissions' -Resolve)
+
+# Store each of your module's functions in its own file in the Functions
+# directory. On the build server, your module's functions will be appended to
 # this file, so only dot-source files that exist on the file system. This allows
 # developers to work on a module without having to build it first. Grab all the
 # functions that are in their own files.

@@ -1,0 +1,10 @@
+{
+	"PSModules": [
+    {
+      "Name": "Carbon.Permissions",
+      "Version": "1.*-*"
+    }
+	],
+
+  "PSModulesDirectoryName": "Modules"
+}

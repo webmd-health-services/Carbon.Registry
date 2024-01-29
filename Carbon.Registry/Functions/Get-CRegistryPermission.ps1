@@ -1,5 +1,5 @@
 
-function Get-CPermission
+function Get-CRegistryPermission
 {
     <#
     .SYNOPSIS
@@ -77,70 +77,12 @@ function Get-CPermission
         [String] $Identity,
 
         # Return inherited permissions in addition to explicit permissions.
-        [switch] $Inherited,
-
-        [switch] $NoWarn
+        [switch] $Inherited
     )
 
     Set-StrictMode -Version 'Latest'
     Use-CallerPreference -Cmdlet $PSCmdlet -Session $ExecutionContext.SessionState
 
-    Write-CRefactoredCommandWarning -CommandName 'Get-CPermission' -ModuleName 'Carbon.Permissions' -NoWarn:$NoWarn
-
-    $account = $null
-    if( $Identity )
-    {
-        $account = Test-CIdentity -Name $Identity -NoWarn -PassThru
-        if( $account )
-        {
-            $Identity = $account.FullName
-        }
-    }
-
-    if( -not (Test-Path -Path $Path) )
-    {
-        Write-Error ('Path ''{0}'' not found.' -f $Path)
-        return
-    }
-
-    & {
-            foreach ($item in (Get-Item -Path $Path -Force))
-            {
-                if( $item.PSProvider.Name -ne 'Certificate' )
-                {
-                    $item.GetAccessControl([Security.AccessControl.AccessControlSections]::Access) | Write-Output
-                    continue
-                }
-
-                if (-not $item.HasPrivateKey)
-                {
-                    continue
-                }
-
-                if ($item.PrivateKey -and ($item.PrivateKey | Get-Member 'CspKeyContainerInfo'))
-                {
-                    $item.PrivateKey.CspKeyContainerInfo.CryptoKeySecurity | Write-Output
-                    continue
-                }
-
-                $item | Resolve-CPrivateKeyPath | Get-Acl | Write-Output
-            }
-        } |
-        Select-Object -ExpandProperty 'Access' |
-        Where-Object {
-            if( $Inherited )
-            {
-                return $true
-            }
-            return (-not $_.IsInherited)
-        } |
-        Where-Object {
-            if( $Identity )
-            {
-                return ($_.IdentityReference.Value -eq $Identity)
-            }
-
-            return $true
-        }
+    Get-CPermission @PSBoundParameters
 }
 

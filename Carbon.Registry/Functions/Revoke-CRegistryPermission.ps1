@@ -1,5 +1,5 @@
 
-function Revoke-CPermission
+function Revoke-CRegistryPermission
 {
     <#
     .SYNOPSIS
@@ -53,121 +53,11 @@ function Revoke-CPermission
 
         # The identity losing permissions.
         [Parameter(Mandatory)]
-        [String] $Identity,
-
-        # ***Internal.*** Do not use.
-        [String] $Description,
-
-        [switch] $NoWarn
+        [String] $Identity
     )
 
     Set-StrictMode -Version 'Latest'
     Use-CallerPreference -Cmdlet $PSCmdlet -Session $ExecutionContext.SessionState
 
-    Write-CRefactoredCommandWarning -CommandName 'Revoke-CPermission' -ModuleName 'Carbon.Permissions' -NoWarn:$NoWarn
-
-    $Path = Resolve-Path -Path $Path
-    if( -not $Path )
-    {
-        return
-    }
-
-    $providerName = Get-CPathProvider -Path $Path -NoWarn | Select-Object -ExpandProperty 'Name'
-    if( $providerName -eq 'Certificate' )
-    {
-        $providerName = 'CryptoKey'
-        if( -not (Test-CCryptoKeyAvailable) )
-        {
-            $providerName = 'FileSystem'
-        }
-    }
-
-    $rulesToRemove = Get-CPermission -Path $Path -Identity $Identity -NoWarn
-    if (-not $rulesToRemove)
-    {
-        return
-    }
-
-    $Identity = Resolve-CIdentityName -Name $Identity -NoWarn
-
-    foreach ($item in (Get-Item $Path -Force))
-    {
-        if( $item.PSProvider.Name -ne 'Certificate' )
-        {
-            if (-not $Description)
-            {
-                $Description = $item.ToString()
-            }
-
-            # We don't use Get-Acl because it returns the whole security descriptor, which includes owner information.
-            # When passed to Set-Acl, this causes intermittent errors.  So, we just grab the ACL portion of the security
-            # descriptor. See
-            # http://www.bilalaslam.com/2010/12/14/powershell-workaround-for-the-security-identifier-is-not-allowed-to-be-the-owner-of-this-object-with-set-acl/
-            $currentAcl = $item.GetAccessControl('Access')
-
-            foreach ($ruleToRemove in $rulesToRemove)
-            {
-                $rmIdentity = $ruleToRemove.IdentityReference
-                $rmType = $ruleToRemove.AccessControlType.ToString().ToLowerInvariant()
-                $rmRights = $ruleToRemove."${providerName}Rights"
-                Write-Information "${Description}  ${rmIdentity}  - ${rmType} ${rmRights}"
-                [void]$currentAcl.RemoveAccessRule($ruleToRemove)
-            }
-            if( $PSCmdlet.ShouldProcess( $Path, ('revoke {0}''s permissions' -f $Identity)) )
-            {
-                Set-Acl -Path $Path -AclObject $currentAcl
-            }
-            continue
-        }
-
-        $certMsg = """$($item.Subject)"" (thumbprint: $($item.Thumbprint); path: " +
-                   "cert:\$($item.PSPath | Split-Path -NoQualifier)) "
-        if (-not $item.HasPrivateKey)
-        {
-            Write-Verbose -Message "Skipping certificate ${certMsg}because it doesn't have a private key."
-            continue
-        }
-
-        if (-not $Description)
-        {
-            $Description = "cert:\$($item.PSPath | Split-Path -NoQualifier) ($($item.Thumbprint))"
-        }
-
-        $privateKey = $item.PrivateKey
-        if ($privateKey -and ($item.PrivateKey | Get-Member 'CspKeyContainerInfo'))
-        {
-            [Security.Cryptography.X509Certificates.X509Certificate2]$certificate = $item
-
-            [Security.AccessControl.CryptoKeySecurity]$keySecurity =
-                $certificate.PrivateKey.CspKeyContainerInfo.CryptoKeySecurity
-
-            foreach ($ruleToRemove in $rulesToRemove)
-            {
-                $rmIdentity = $ruleToRemove.IdentityReference
-                $rmType = $ruleToRemove.AccessControlType.ToString().ToLowerInvariant()
-                $rmRights = $ruleToRemove."${providerName}Rights"
-                Write-Information "${Description}  ${rmIdentity}  - ${rmType} ${rmRights}"
-                [void] $keySecurity.RemoveAccessRule($ruleToRemove)
-            }
-
-            $action = "revoke ${Identity}'s permissions"
-            Set-CryptoKeySecurity -Certificate $certificate -CryptoKeySecurity $keySecurity -Action $action
-            return
-        }
-
-        $privateKeyFilesPaths = $item | Resolve-CPrivateKeyPath
-        if (-not $privateKeyFilesPaths)
-        {
-            # Resolve-CPrivateKeyPath writes an appropriately detailed error message.
-            continue
-        }
-
-        $revokePermissionParams = New-Object -TypeName 'Collections.Generic.Dictionary[[string], [object]]' `
-                                             -ArgumentList $PSBoundParameters
-        [void]$revokePermissionParams.Remove('Path')
-        foreach( $privateKeyFilePath in $privateKeyFilesPaths )
-        {
-            Revoke-CPermission -Path $privateKeyFilePath @revokePermissionParams -Description $Description -NoWarn
-        }
-    }
+    Revoke-CPermission @PSBoundParameters
 }
