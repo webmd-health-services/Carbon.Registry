@@ -78,7 +78,7 @@ function Test-CRegistryPermission
     Demonstrates how to test for permissions on a certificate's private key/key container. If the certificate doesn't
     have a private key, returns `$true`.
     #>
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='IgnoreAppliesToFlags')]
     param(
         # The path on which the permissions should be checked.  Can be a file system or registry path.
         [Parameter(Mandatory)]
@@ -99,10 +99,12 @@ function Test-CRegistryPermission
         # See `Grant-CPermission` for detailed explanation of this parameter. This controls the inheritance and
         # propagation flags.  Default is full inheritance, e.g. `ContainersAndSubContainersAndLeaves`. This parameter is
         # ignored if `Path` is to a leaf item.
+        [Parameter(Mandatory, ParameterSetName='TestAppliesToFlags')]
         [ValidateSet('KeyOnly', 'KeyAndSubkeys', 'SubkeysOnly')]
         [String] $ApplyTo,
 
         # Only apply the permissions to keys in the key, i.e. child keys only.
+        [Parameter(ParameterSetName='TestAppliesToFlags')]
         [switch] $OnlyApplyToChildKeys,
 
         # Include inherited permissions in the check.
@@ -116,13 +118,15 @@ function Test-CRegistryPermission
     Set-StrictMode -Version 'Latest'
     Use-CallerPreference -Cmdlet $PSCmdlet -Session $ExecutionContext.SessionState
 
-    $PSBoundParameters.Remove('OnlyApplyToChildKeys') | Out-Null
-
-    if ($ApplyTo)
+    if ($PSCmdlet.ParameterSetName -eq 'TestAppliesToFlags')
     {
-        $PSBoundParameters.Remove('ApplyTo') | Out-Null
+        $PSBoundParameters['ApplyTo'] = $ApplyTo | ConvertTo-CarbonPermissionsApplyTo
 
-        Add-FlagsArgument -Argument $PSBoundParameters -ApplyTo $ApplyTo -OnlyApplyToChildKeys:$OnlyApplyToChildKeys
+        $PSBoundParameters.Remove('OnlyApplyToChildKeys') | Out-Null
+        if ($OnlyApplyToChildKeys)
+        {
+            $PSBoundParameters['OnlyApplyToChildren'] = $true
+        }
     }
 
     Test-CPermission @PSBoundParameters

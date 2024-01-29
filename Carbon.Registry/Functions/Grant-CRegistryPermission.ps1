@@ -186,7 +186,8 @@ function Grant-CRegistryPermission
     `ENTERPRISE\Wesley` will be able to read everything in `C:\Bridge` and write only in the `C:\Bridge` directory, not
     to any sub-directory.
     #>
-    [CmdletBinding(SupportsShouldProcess)]
+    [Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '')]
+    [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName='DefaultAppliesToFlags')]
     [OutputType([Security.AccessControl.AccessRule])]
     param(
         [Parameter(Mandatory)]
@@ -207,10 +208,12 @@ function Grant-CRegistryPermission
         # How to apply container permissions.  This controls the inheritance and propagation flags.  Default is full
         # inheritance, e.g. `ContainersAndSubContainersAndLeaves`. This parameter is ignored if `Path` is to a leaf
         # item.
+        [Parameter(Mandatory, ParameterSetName='SetsAppliesToFlags')]
         [ValidateSet('KeyOnly', 'KeyAndSubkeys', 'SubkeysOnly')]
-        [String] $ApplyTo = 'KeyAndSubkeys',
+        [String] $ApplyTo,
 
         # Only apply the permissions to keys in the key, i.e. child keys only.
+        [Parameter(ParameterSetName='SetsAppliesToFlags')]
         [switch] $OnlyApplyToChildKeys,
 
         # The type of rule to apply, either `Allow` or `Deny`. The default is `Allow`, which will allow access to the
@@ -242,10 +245,18 @@ function Grant-CRegistryPermission
     Set-StrictMode -Version 'Latest'
     Use-CallerPreference -Cmdlet $PSCmdlet -Session $ExecutionContext.SessionState
 
-    $PSBoundParameters.Remove('ApplyTo') | Out-Null
-    $PSBoundParameters.Remove('OnlyApplyToChildKeys') | Out-Null
+    if (-not $ApplyTo)
+    {
+        $ApplyTo = 'KeyAndSubkeys'
+    }
 
-    Add-FlagsArgument -Argument $PSBoundParameters -ApplyTo $ApplyTo -OnlyApplyToChildKeys:$OnlyApplyToChildKeys
+    $PSBoundParameters['ApplyTo'] = $ApplyTo | ConvertTo-CarbonPermissionsApplyTo
+
+    $PSBoundParameters.Remove('OnlyApplyToChildKeys') | Out-Null
+    if ($OnlyApplyToChildKeys)
+    {
+        $PSBoundParameters['OnlyApplyToChildren'] = $true
+    }
 
     Grant-CPermission @PSBoundParameters
 
