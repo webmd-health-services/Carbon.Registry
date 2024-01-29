@@ -1,14 +1,23 @@
 
 Build:
-- PowerShell:
-    ExceptDuring: Clean
-    ScriptBlock: prism install | Format-Table -Auto
-
 - Version:
     Path: Carbon.Registry\Carbon.Registry.psd1
     Prerelease:
     - main: ""
     - "*": rc1
+
+- PowerShell:
+    WorkingDirectory: Carbon.Registry
+    ExceptDuring: Clean
+    ScriptBlock: prism install | Format-Table -Auto
+
+- PowerShell:
+    ExceptDuring: Clean
+    Path: init.ps1
+
+- PowerShell:
+    OnlyDuring: Clean
+    Path: reset.ps1
 
 # Update the AppVeyor build/version number.
 - Exec:
@@ -27,14 +36,6 @@ Build:
     DestinationPath: Carbon.Registry\Carbon.Registry.psm1
     DeleteSourceFiles: true
     TextSeparator: "$(NewLine)$(NewLine)"
-
-- PowerShell:
-    ExceptDuring: Clean
-    Path: init.ps1
-
-- PowerShell:
-    OnlyDuring: Clean
-    Path: reset.ps1
 
 - CopyFile:
     Path:
