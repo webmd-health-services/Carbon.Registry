@@ -1,5 +1,29 @@
+<!--markdownlint-disable MD012 no-multiple-blanks-->
 
 # Carbon.Registry Changelog
+
+## 1.2.0
+
+> Unreleased
+
+Added `Get-CRegistryPermission`, `Grant-CRegistryPermission`, `Revoke-CRegistryPermission`, and
+`Test-CRegistryPermission`, migrated from Carbon's `Get-CPermission`, `Grant-CPermission`, `Revoke-CPermission`, and
+`Test-CPermission`. If you are switching from Carbon to Carbon.Registry, do the following:
+
+* Rename usages of `Get-CPermission`, `Grant-CPermission`, `Revoke-CPermission`, and `Test-CPermission` that operate on
+  registry keys/paths to `Get-CRegistryPermission`, `Grant-CRegistryPermission`, `Revoke-CRegistryPermission`, and
+  `Test-CRegistryPermission`.
+* Replace usages of the `Test-CRegistryPermission` function's `-Exact` switch to `-Strict`.
+* Using the table below, replace usages of `Grant-CRegistryPermission` and `Test-CRegistryPermission` arguments in the
+  left column with the new arguments from the right column.
+  | Old Argument                                            | New Argument(s)
+  |---------------------------------------------------------|---------------------------------------------------------
+  | `-Permission Container`                                 | `-Permission KeyOnly`
+  | `-Permission SubContainers`                             | `-Permission SubkeysOnly`
+  | `-Permission ChildContainers`                           | `-Permission SubkeysOnly -OnlyApplyToChildKeys`
+  | `-Permission ContainerAndSubContainers`                 | `-Permission KeyAndSubkeys`
+  | `-Permission ContainerAndChildContainers`               | `-Permission KeyAndSubkeys -OnlyApplyToChildKeys`
+
 
 ## 1.1.0
 
