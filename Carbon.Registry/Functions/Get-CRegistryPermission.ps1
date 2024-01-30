@@ -3,80 +3,61 @@ function Get-CRegistryPermission
 {
     <#
     .SYNOPSIS
-    Gets the permissions (access control rules) for a file, directory, registry key, or certificate's private key/key
-    container.
+    Gets the permissions (access control rules) for a registry key.
 
     .DESCRIPTION
-    Permissions for a specific identity can also be returned.  Access control entries are for a path's discretionary
-    access control list.
+    The `Get-CRegistryPermission` function gets the permissions on a registry key. Pass the path to the registry key
+    whose permissions to get to the `Path` parameter. By default, all non-inherited permissions are returned. To also
+    get inherited permissions, use the `Inherited` switch.
 
-    To return inherited permissions, use the `Inherited` switch.  Otherwise, only non-inherited (i.e. explicit)
-    permissions are returned.
-
-    Certificate permissions are only returned if a certificate has a private key/key container. If a certificate doesn't
-    have a private key, `$null` is returned.
-
+    Permissions for a specific identity can also be returned. Pass the user/group name to the `Identity` parameter. If
+    the identity doesn't exist or it doesn't have permissions on the registry key, not error is written and nothing is
+    returned.
+s
     .OUTPUTS
     System.Security.AccessControl.AccessRule.
 
     .LINK
-    Carbon_Permission
+    Get-CRegistryPermission
 
     .LINK
-    Disable-CAclInheritance
+    Grant-CRegistryPermission
 
     .LINK
-    Enable-CAclInheritance
+    Revoke-CRegistryPermission
 
     .LINK
-    Get-CPermission
-
-    .LINK
-    Grant-CPermission
-
-    .LINK
-    Revoke-CPermission
-
-    .LINK
-    Test-CPermission
+    Test-CRegistryPermission
 
     .EXAMPLE
-    Get-CPermission -Path 'C:\Windows'
+    Get-CRegistryPermission -Path 'hklm:\Software'
 
-    Returns `System.Security.AccessControl.FileSystemAccessRule` objects for all the non-inherited rules on
-    `C:\windows`.
-
-    .EXAMPLE
-    Get-CPermission -Path 'hklm:\Software' -Inherited
-
-    Returns `System.Security.AccessControl.RegistryAccessRule` objects for all the inherited and non-inherited rules on
-    `hklm:\software`.
+    Demonstrates how to get all non-inherited permissions on a registry key by passing the key's path to the `Path`
+    parameter.
 
     .EXAMPLE
-    Get-CPermission -Path 'C:\Windows' -Idenity Administrators
+    Get-CRegistryPermission -Path 'hklm:\Software' -Inherited
 
-    Returns `System.Security.AccessControl.FileSystemAccessRule` objects for all the `Administrators'` rules on
-    `C:\windows`.
+    Demonstrates how to get inherited permissions by using the `Inherited` switch.
 
     .EXAMPLE
-    Get-CPermission -Path 'Cert:\LocalMachine\1234567890ABCDEF1234567890ABCDEF12345678'
+    Get-CRegistryPermission -Path 'hklm:\Software\Microsoft' -Idenity Administrators
 
-    Returns `System.Security.AccessControl.CryptoKeyAccesRule` objects for certificate's
-    `Cert:\LocalMachine\1234567890ABCDEF1234567890ABCDEF12345678` private key/key container. If it doesn't have a
-    private key, `$null` is returned.
+    Demonstrates how to get the permissions for a specific user/group by passing its name to the `Identity` paramter.
     #>
     [CmdletBinding()]
-    [OutputType([System.Security.AccessControl.AccessRule])]
+    [OutputType([Security.AccessControl.RegistryAccessRule])]
     param(
-        # The path whose permissions (i.e. access control rules) to return. File system, registry, or certificate paths
-        # supported. Wildcards supported.
+        # The registry key path whose permissions (i.e. access control rules) to return. Wildcards supported.
         [Parameter(Mandatory)]
         [String] $Path,
 
-        # The identity whose permissiosn (i.e. access control rules) to return.
+        # The identity whose permissiosn (i.e. access control rules) to return. By default, all non-inherited permissions
+        # are returned.
         [String] $Identity,
 
-        # Return inherited permissions in addition to explicit permissions.
+        # Return inherited permissions in addition to explicit permissions. By default, inherited permissions are not
+        # returned.
         [switch] $Inherited
     )
 

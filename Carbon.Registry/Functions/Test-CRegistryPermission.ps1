@@ -3,115 +3,75 @@ function Test-CRegistryPermission
 {
     <#
     .SYNOPSIS
-    Tests if permissions are set on a file, directory, registry key, or certificate's private key/key container.
+    Tests if a user/group has permissions on a registry key.
 
     .DESCRIPTION
-    Sometimes, you don't want to use `Grant-CPermission` on a big tree.  In these situations, use `Test-CPermission` to
-    see if permissions are set on a given path.
+    The `Test-CRegistryPermission` function tests if a user/gropu has permissions on a registry key. Pass the path to
+    the registry key to the `Path` parameter, the user/group name to the `Identity` parameter, and the permission to
+    check to the `Permission` parameter. If the user has those permissions, returns `$true`, otherwise returns `$false`.
 
-    This function supports file system, registry, and certificate private key/key container permissions.  You can also
-    test the inheritance and propogation flags on containers, in addition to the permissions, with the `ApplyTo`
-    parameter.  See [Grant-CPermission](Grant-CPermission.html) documentation for an explanation of the `ApplyTo`
-    parameter.
+    By default, the permission check is not exact. For example, if the user/group has `FullControl` access, and
+    `ReadKey` is passed as the permission to check, the function would return `$true` because `FullControl` includes the
+    `ReadKey` permission. If you want to test if the user/group has the exact permissions passed, use the `Strict`
+    switch.
 
-    Inherited permissions on *not* checked by default.  To check inherited permission, use the `-Inherited` switch.
+    Inherited permissions on *not* checked by default. To check inherited permission, use the `-Inherited` switch.
 
-    By default, the permission check is not exact, i.e. the user may have additional permissions to what you're
-    checking.  If you want to make sure the user has *exactly* the permission you want, use the `-Exact` switch.  Please
-    note that by default, NTFS will automatically add/grant `Synchronize` permission on an item, which is handled by
-    this function.
-
-    When checking for permissions on certificate private keys/key containers, if a certificate doesn't have a private
-    key, `$true` is returned.
-
+    By default, how the permissions are applied to descendent registry keys is ignored. If you also want to check the
+    key's "applies to" flags, use tthe `ApplyTo` and `OnlyApplyToChildKeys` parameters.
     .OUTPUTS
     System.Boolean.
 
     .LINK
-    Carbon_Permission
+    Get-CRegistryPermission
 
     .LINK
-    ConvertTo-CContainerInheritanceFlags
-
-    .LINK
-    Disable-CAclInheritance
-
-    .LINK
-    Enable-CAclInheritance
-
-    .LINK
-    Get-CPermission
-
-    .LINK
-    Grant-CPermission
+    Grant-CRegistryPermission
 
     .LINK
     Revoke-CPermission
 
     .LINK
-    http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.filesystemrights.aspx
-
-    .LINK
     http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.registryrights.aspx
 
-    .LINK
-    http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.cryptokeyrights.aspx
-
     .EXAMPLE
-    Test-CPermission -Identity 'STARFLEET\JLPicard' -Permission 'FullControl' -Path 'C:\Enterprise\Bridge'
+    Test-CRegistryPermission -Identity 'STARFLEET\JLPicard' -Permission 'FullControl' -Path 'hklm:\Enterprise\Bridge'
 
     Demonstrates how to check that Jean-Luc Picard has `FullControl` permission on the `C:\Enterprise\Bridge`.
 
     .EXAMPLE
-    Test-CPermission -Identity 'STARFLEET\GLaForge' -Permission 'WriteKey' -Path 'HKLM:\Software\Enterprise\Engineering'
+    Test-CRegistryPermission -Identity 'STARFLEET\Worf' -Permission 'Write' -ApplyTo 'KeyOnly' -Path 'hlkm:\Enterprise\Brig'
 
-    Demonstrates how to check that Geordi LaForge can write registry keys at `HKLM:\Software\Enterprise\Engineering`.
-
-    .EXAMPLE
-    Test-CPermission -Identity 'STARFLEET\Worf' -Permission 'Write' -ApplyTo 'Container' -Path 'C:\Enterprise\Brig'
-
-    Demonstrates how to test for inheritance/propogation flags, in addition to permissions.
-
-    .EXAMPLE
-    Test-CPermission -Identity 'STARFLEET\Data' -Permission 'GenericWrite' -Path 'cert:\LocalMachine\My\1234567890ABCDEF1234567890ABCDEF12345678'
-
-    Demonstrates how to test for permissions on a certificate's private key/key container. If the certificate doesn't
-    have a private key, returns `$true`.
+    Demonstrates how to test the "applies to" flags on a registry key by using the `ApplyTo` parameter.
     #>
     [CmdletBinding(DefaultParameterSetName='IgnoreAppliesToFlags')]
     param(
-        # The path on which the permissions should be checked.  Can be a file system or registry path.
+        # The registry key path on which the permissions should be checked.
         [Parameter(Mandatory)]
         [String] $Path,
 
-        # The user or group whose permissions to check.
+        # The user or group name whose permissions to check.
         [Parameter(Mandatory)]
         [String] $Identity,
 
-        # The permission to test for: e.g. FullControl, Read, etc.  For file system items, use values from
-        # [System.Security.AccessControl.FileSystemRights](http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.filesystemrights.aspx).
-        # For registry items, use values from
+        # The permission to test for: e.g. FullControl, ReadKey, etc. Use values from
         # [System.Security.AccessControl.RegistryRights](http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.registryrights.aspx).
         [Parameter(Mandatory)]
         [String[]] $Permission,
 
-        # The container and inheritance flags to check. Ignored if `Path` is a file. These are ignored if not supplied.
-        # See `Grant-CPermission` for detailed explanation of this parameter. This controls the inheritance and
-        # propagation flags.  Default is full inheritance, e.g. `ContainersAndSubContainersAndLeaves`. This parameter is
-        # ignored if `Path` is to a leaf item.
+        # The "applies to" flags to check for. By default, these flags are ignored.
         [Parameter(Mandatory, ParameterSetName='TestAppliesToFlags')]
         [ValidateSet('KeyOnly', 'KeyAndSubkeys', 'SubkeysOnly')]
         [String] $ApplyTo,
 
-        # Only apply the permissions to keys in the key, i.e. child keys only.
+        # Check that the permission is applied only to child keys and no further descendants.
         [Parameter(ParameterSetName='TestAppliesToFlags')]
         [switch] $OnlyApplyToChildKeys,
 
         # Include inherited permissions in the check.
         [switch] $Inherited,
 
-        # Check for the exact permissions, inheritance flags, and propagation flags, i.e. make sure the identity has
-        # *only* the permissions you specify.
+        # Check for the exact permissions, i.e. make sure the identity has *only* the permissions specified.
         [switch] $Strict
     )
 
