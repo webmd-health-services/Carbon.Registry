@@ -45,7 +45,8 @@ Describe 'Test-CRegistryPermission' {
                                  -Permission FullControl `
                                  -ErrorAction SilentlyContinue |
             Should -BeNullOrEmpty
-        $Global:Error | Should -HaveCount 2
+        $Global:Error | Should -HaveCount 1
+        $Global:Error | Should -Match 'path does not exist'
     }
 
     It 'checks ungranted permission' {

@@ -80,7 +80,7 @@ function Test-CRegistryPermission
 
     if ($PSCmdlet.ParameterSetName -eq 'TestAppliesToFlags')
     {
-        $PSBoundParameters['ApplyTo'] = $ApplyTo | ConvertTo-CarbonPermissionsApplyTo
+        $PSBoundParameters['ApplyTo'] = $ApplyTo | ConvertTo-CarbonSecurityApplyTo
 
         $PSBoundParameters.Remove('OnlyApplyToChildKeys') | Out-Null
         if ($OnlyApplyToChildKeys)

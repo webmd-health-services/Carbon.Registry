@@ -1,5 +1,5 @@
 
-function ConvertTo-CarbonPermissionsApplyTo
+function ConvertTo-CarbonSecurityApplyTo
 {
     [CmdletBinding()]
     param(

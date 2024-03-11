@@ -258,10 +258,10 @@ Describe 'Grant-CRegistryPermission' {
     It 'does not change permission' {
         Invoke-GrantPermissions -Identity $script:user -Permission FullControl -Path $script:testKeyPath
 
-        Mock -CommandName 'Set-Acl' -Verifiable -ModuleName 'Carbon.Permissions'
+        Mock -CommandName 'Set-Acl' -Verifiable -ModuleName 'Carbon.Security'
 
         Invoke-GrantPermissions -Identity $script:user -Permission FullControl -Path $script:testKeyPath
-        Assert-MockCalled -CommandName 'Set-Acl' -Times 0 -ModuleName 'Carbon.Permissions'
+        Assert-MockCalled -CommandName 'Set-Acl' -Times 0 -ModuleName 'Carbon.Security'
     }
 
     It 'when changing applies to' {
@@ -278,7 +278,7 @@ Describe 'Grant-CRegistryPermission' {
                                 -Path $script:testKeyPath `
                                 -ApplyTo KeyAndSubkeys
 
-        Mock -CommandName 'Set-Acl' -Verifiable -ModuleName 'Carbon.Permissions'
+        Mock -CommandName 'Set-Acl' -Verifiable -ModuleName 'Carbon.Security'
 
         Grant-CRegistryPermission -Identity $script:user `
                                   -Permission FullControl `
@@ -286,7 +286,7 @@ Describe 'Grant-CRegistryPermission' {
                                   -Apply KeyAndSubkeys `
                                   -Force
 
-        Assert-MockCalled -CommandName 'Set-Acl' -Times 1 -Exactly -ModuleName 'Carbon.Permissions'
+        Assert-MockCalled -CommandName 'Set-Acl' -Times 1 -Exactly -ModuleName 'Carbon.Security'
     }
 
     It 'validates path exists' {
@@ -297,7 +297,7 @@ Describe 'Grant-CRegistryPermission' {
                                             -ErrorAction SilentlyContinue
         $result | Should -BeNullOrEmpty
         $Global:Error.Count | Should -BeGreaterThan 0
-        $Global:Error[0] | Should -Match 'Cannot find path'
+        $Global:Error[0] | Should -Match 'path does not exist'
     }
 
     It 'clears existing Permission' {
