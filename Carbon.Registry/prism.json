@@ -1,7 +1,7 @@
 {
 	"PSModules": [
     {
-      "Name": "Carbon.Permissions",
+      "Name": "Carbon.Security",
       "Version": "1.*-*"
     }
 	],

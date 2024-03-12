@@ -128,7 +128,7 @@ function Grant-CRegistryPermission
         $ApplyTo = 'KeyAndSubkeys'
     }
 
-    $PSBoundParameters['ApplyTo'] = $ApplyTo | ConvertTo-CarbonPermissionsApplyTo
+    $PSBoundParameters['ApplyTo'] = $ApplyTo | ConvertTo-CarbonSecurityApplyTo
 
     $PSBoundParameters.Remove('OnlyApplyToChildKeys') | Out-Null
     if ($OnlyApplyToChildKeys)

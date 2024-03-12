@@ -5,6 +5,7 @@ Build:
     Prerelease:
     - main: ""
     - "*": rc1
+    IncrementPrereleaseVersion: true
 
 - PowerShell:
     WorkingDirectory: Carbon.Registry
