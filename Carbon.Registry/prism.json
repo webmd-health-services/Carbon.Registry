@@ -2,9 +2,7 @@
 	"PSModules": [
     {
       "Name": "Carbon.Security",
-      "Version": "1.*-*"
+      "Version": "1.*"
     }
-	],
-
-  "PSModulesDirectoryName": "Modules"
+	]
 }

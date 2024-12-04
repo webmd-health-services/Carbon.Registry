@@ -11,9 +11,11 @@ Build:
 - Exec: appveyor UpdateBuild -Version "$(WHISKEY_SEMVER2)+$(WHISKEY_BUILD_NUMBER)"
   .OnlyBy: BuildServer
 
-- PowerShell: prism install | Format-Table -Auto
-  .WorkingDirectory: Carbon.Registry
-  .ExceptDuring: Clean
+- PowerShell:
+    ScriptBlock: |
+        prism install | Format-Table -Auto
+        prism install -Path .\Carbon.Registry | Format-Table -Auto
+    .ExceptDuring: Clean
 
 - PowerShell: .\init.ps1
   .ExceptDuring: Clean

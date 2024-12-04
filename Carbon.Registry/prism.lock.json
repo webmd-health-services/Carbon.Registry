@@ -2,7 +2,7 @@
   "PSModules": [
     {
       "name": "Carbon.Security",
-      "version": "1.0.0-rc6",
+      "version": "1.0.3",
       "repositorySourceLocation": "https://www.powershellgallery.com/api/v2"
     }
   ]

@@ -2,9 +2,13 @@
 
 # Carbon.Registry Changelog
 
+## 1.2.1
+
+Reducing directory depth of internal, private, nested modules.
+
 ## 1.2.0
 
-> Unreleased
+> Released 10 Jun 2024
 
 Added `Get-CRegistryPermission`, `Grant-CRegistryPermission`, `Revoke-CRegistryPermission`, and
 `Test-CRegistryPermission`, migrated from Carbon's `Get-CPermission`, `Grant-CPermission`, `Revoke-CPermission`, and
@@ -16,6 +20,7 @@ Added `Get-CRegistryPermission`, `Grant-CRegistryPermission`, `Revoke-CRegistryP
 * Replace usages of the `Test-CRegistryPermission` function's `-Exact` switch to `-Strict`.
 * Using the table below, replace usages of `Grant-CRegistryPermission` and `Test-CRegistryPermission` arguments in the
   left column with the new arguments from the right column.
+
   | Old Argument                                            | New Argument(s)
   |---------------------------------------------------------|---------------------------------------------------------
   | `-Permission Container`                                 | `-Permission KeyOnly`
