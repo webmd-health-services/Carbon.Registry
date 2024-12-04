@@ -9,6 +9,10 @@ BeforeAll {
 
     & (Join-Path -Path $PSScriptRoot -ChildPath 'Initialize-Test.ps1' -Resolve)
 
+    Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\PSModules\Carbon.Accounts' -Resolve) `
+                  -Function @('Resolve-CPrincipalName') `
+                  -Verbose:$false
+
     $script:testKeyPath = $null
     $script:testNum = 0
 
@@ -123,7 +127,7 @@ BeforeAll {
                                             @optionalParams
         $result = $result | Select-Object -Last 1
         $result | Should -Not -BeNullOrEmpty
-        $result.IdentityReference | Should -Be (Resolve-CIdentityName $Identity)
+        $result.IdentityReference | Should -Be (Resolve-CPrincipalName $Identity)
         $result | Should -BeOfType $expectedRuleType
         if( -not $ExpectedPermission )
         {

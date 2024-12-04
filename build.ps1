@@ -78,7 +78,7 @@ Set-StrictMode -Version Latest
 
 # Set to a specific version to use a specific version of Whiskey.
 $whiskeyVersion = '0.*'
-$allowPrerelease = $false
+$allowPrerelease = $true
 
 $psModulesRoot = Join-Path -Path $PSScriptRoot -ChildPath 'PSModules'
 $whiskeyModuleRoot = Join-Path -Path $PSScriptRoot -ChildPath 'PSModules\Whiskey'
