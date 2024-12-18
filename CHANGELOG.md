@@ -2,7 +2,13 @@
 
 # Carbon.Registry Changelog
 
+## 1.2.2
+
+Updating dependencies.
+
 ## 1.2.1
+
+> Released 4 Dec 2024
 
 Reducing directory depth of internal, private, nested modules.
 
