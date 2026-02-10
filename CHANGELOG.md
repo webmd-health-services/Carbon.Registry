@@ -2,7 +2,13 @@
 
 # Carbon.Registry Changelog
 
+## 1.2.3
+
+Fixed: Carbon.Registry fails to import when it is a third-level or higher nested dependency.
+
 ## 1.2.2
+
+> Released 20 Dec 2024
 
 Updating dependencies.
 
