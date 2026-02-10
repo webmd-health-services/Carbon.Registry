@@ -36,7 +36,7 @@ Demonstrates how to use Whiskey to clean up any downloaded build tools and previ
 .EXAMPLE
 ./build.ps1 -Initialize
 
-Demonstrates how to initialize the build root with any tools that are required by tasks in the `whiskey.yml` file.
+Demonstrates how to initialize the build directory with any tools that are required by tasks in the `whiskey.yml` file.
 
 .EXAMPLE
 ./build.ps1 -PipelineName Test
@@ -78,7 +78,7 @@ Set-StrictMode -Version Latest
 
 # Set to a specific version to use a specific version of Whiskey.
 $whiskeyVersion = '0.*'
-$allowPrerelease = $true
+$allowPrerelease = $false
 
 $psModulesRoot = Join-Path -Path $PSScriptRoot -ChildPath 'PSModules'
 $whiskeyModuleRoot = Join-Path -Path $PSScriptRoot -ChildPath 'PSModules\Whiskey'
