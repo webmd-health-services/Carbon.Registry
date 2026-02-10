@@ -16,9 +16,10 @@ environment:
     job_group: pwsh
     appveyor_build_worker_image: Visual Studio 2022
 
-  - job_name: Windows PowerShell 5.1/.NET 4.6.2
-    job_group: ps
-    appveyor_build_worker_image: Visual Studio 2013
+  # hangs publishing PowerShell module locally
+  # - job_name: Windows PowerShell 5.1/.NET 4.6.2
+  #   job_group: ps
+  #   appveyor_build_worker_image: Visual Studio 2013
 
   - job_name: Windows PowerShell 5.1/.NET 4.8
     job_group: ps
