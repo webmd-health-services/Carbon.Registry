@@ -9,6 +9,11 @@
       "name": "Carbon.Accounts",
       "version": "2.0.3",
       "repositorySourceLocation": "https://www.powershellgallery.com/api/v2"
+    },
+    {
+      "name": "Whiskey",
+      "version": "0.63.3",
+      "repositorySourceLocation": "https://www.powershellgallery.com/api/v2"
     }
   ]
 }

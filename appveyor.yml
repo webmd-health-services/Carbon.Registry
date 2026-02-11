@@ -16,9 +16,10 @@ environment:
     job_group: pwsh
     appveyor_build_worker_image: Visual Studio 2022
 
-  - job_name: Windows PowerShell 5.1/.NET 4.6.2
-    job_group: ps
-    appveyor_build_worker_image: Visual Studio 2013
+  # hangs publishing PowerShell module locally
+  # - job_name: Windows PowerShell 5.1/.NET 4.6.2
+  #   job_group: ps
+  #   appveyor_build_worker_image: Visual Studio 2013
 
   - job_name: Windows PowerShell 5.1/.NET 4.8
     job_group: ps
@@ -43,9 +44,10 @@ for:
     only:
     - job_group: ps
   build_script:
-  - ps: |
+  - ps: &build_script |
         $ProgressPreference = 'SilentlyContinue'
         iwr https://raw.githubusercontent.com/webmd-health-services/Prism/main/Scripts/init.ps1 | iex | Format-Table
+        prism install
         .\build.ps1
 
 # Build in PowerShell
@@ -53,7 +55,4 @@ for:
     only:
     - job_group: pwsh
   build_script:
-  - pwsh: |
-        $ProgressPreference = 'SilentlyContinue'
-        iwr https://raw.githubusercontent.com/webmd-health-services/Prism/main/Scripts/init.ps1 | iex | Format-Table
-        ./build.ps1
+  - pwsh: *build_script
